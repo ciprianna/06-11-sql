@@ -27,18 +27,23 @@ def show_final_per_person
 end
 
 # Show total_cost (Float)
-def show_final_per_person
+def show_total_cost
   DATABASE.execute("SELECT total_cost FROM split_checks;")
 end
 
 # Show tip_percentage (Float)
-def show_final_per_person
+def show_tip_percentage
   DATABASE.execute("SELECT tip_percentage FROM split_checks;")
 end
 
 # Show people (Integer)
-def show_final_per_person
+def show_number_of_people
   DATABASE.execute("SELECT people FROM split_checks;")
+end
+
+# Show row of information for a given check by id (Integer)
+def check_costs(id)
+  DATABASE.execute("SELECT * FROM split_checks WHERE id = #{id}")
 end
 
 # Update tip_percentage (Float)
@@ -48,7 +53,12 @@ end
 #
 # Returns nothing.
 def update_tip(id, new_tip)
-  DATABASE.execute("UPDATE split_checks SET tip_percentage = #{new_tip} WHERE id = #{id};")
+  total_cost = DATABASE.execute("SELECT total_cost FROM split_checks WHERE id = #{id};")
+  total_cost = total_cost.first["total_cost"]
+  people = DATABASE.execute("SELECT people FROM split_checks WHERE id = #{id};")
+  people = people.first["people"]
+  new_check = CheckSplitter.new(total_cost: total_cost, tip_percentage: new_tip, people: people)
+  DATABASE.execute("UPDATE split_checks SET tip_percentage = #{new_tip}, total_cost_with_tip = #{new_check.total_cost_with_tip}, final_per_person = #{new_check.final_per_person} WHERE id = #{id};")
 end
 
 # Update total_cost (Float)
@@ -58,7 +68,12 @@ end
 #
 # Returns nothing
 def update_total_cost(id, new_cost)
-  DATABASE.execute("UPDATE split_checks SET total_cost = #{new_cost} WHERE id = #{id};")
+  tip_percent = DATABASE.execute("SELECT tip_percentage FROM split_checks WHERE id = #{id};")
+  tip_percent = tip_percent.first["tip_percentage"]
+  people = DATABASE.execute("SELECT people FROM split_checks WHERE id = #{id};")
+  people = people.first["people"]
+  new_check = CheckSplitter.new(total_cost: new_cost, tip_percentage: tip_percent, people: people)
+  DATABASE.execute("UPDATE split_checks SET total_cost = #{new_cost}, total_cost_with_tip= #{new_check.total_cost_with_tip}, final_per_person = #{new_check.final_per_person} WHERE id = #{id};")
 end
 
 # Update the number of people (Integer)

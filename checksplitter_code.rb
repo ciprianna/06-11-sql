@@ -76,12 +76,5 @@ class CheckSplitter
     self.tip_per_person + self.base_cost_per_person
   end
 
-  # Gives the amounts; calculates the percent as a whole number again; rounds
-  # the final dollar amount per person to two decimal places. Formats output
-  # to wildcard, digit.two floats decimals.
-  def output
-    puts "The total cost of the meal is $#{sprintf("%0.2f", total_cost)}."
-    puts "Divided by #{people} people plus a #{tip_percentage * 100} percent tip, that's $#{sprintf("%0.2f", final_per_person)} per person."
-  end
 
 end
