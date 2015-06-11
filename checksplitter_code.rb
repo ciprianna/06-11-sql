@@ -60,21 +60,9 @@ class CheckSplitter
     total_cost + (total_cost * tip_percentage)
   end
 
-  # Divides the total cost by the number of people
-  def base_cost_per_person
-    total_cost / people
-  end
-
-  # Multiplies the total cost by the tip percentage, then divides that by the
-  # number of people
-  def tip_per_person
-    (total_cost * tip_percentage) / people
-  end
-
   # Adds the total cost of the meal per person and the tip per person
   def final_per_person
-    self.tip_per_person + self.base_cost_per_person
+    total_cost_with_tip / people
   end
-
-
+  
 end
