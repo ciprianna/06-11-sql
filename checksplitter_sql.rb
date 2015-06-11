@@ -46,7 +46,8 @@ def check_costs(id)
   DATABASE.execute("SELECT * FROM split_checks WHERE id = #{id}")
 end
 
-# Update tip_percentage (Float)
+# Update tip_percentage (Float), and also updates the corresponding total_cost
+#   (Float) and final_per_person (Float) values.
 #
 # id - Integer
 # new_tip - Float
@@ -61,7 +62,8 @@ def update_tip(id, new_tip)
   DATABASE.execute("UPDATE split_checks SET tip_percentage = #{new_tip}, total_cost_with_tip = #{new_check.total_cost_with_tip}, final_per_person = #{new_check.final_per_person} WHERE id = #{id};")
 end
 
-# Update total_cost (Float)
+# Update total_cost (Float); also updates the corresponding total_cost_with_tip
+#   (Float), and final_per_person (Float) values.
 #
 # id - Integer
 # new_cost - Integer
@@ -76,14 +78,20 @@ def update_total_cost(id, new_cost)
   DATABASE.execute("UPDATE split_checks SET total_cost = #{new_cost}, total_cost_with_tip= #{new_check.total_cost_with_tip}, final_per_person = #{new_check.final_per_person} WHERE id = #{id};")
 end
 
-# Update the number of people (Integer)
+# Update the number of people (Integer); updates the corresponding value for
+#   final_per_person (Float)
 #
 # id - Integer
 # new_number_of_people - Integer
 #
 # Returns nothing
 def update_number_of_people(id, new_number_of_people)
-  DATABASE.execute("UPDATE split_checks SET people = #{new_number_of_people} WHERE id = #{id};")
+  tip_percent = DATABASE.execute("SELECT tip_percentage FROM split_checks WHERE id = #{id};")
+  tip_percent = tip_percent.first["tip_percentage"]
+  total_cost = DATABASE.execute("SELECT total_cost FROM split_checks WHERE id = #{id};")
+  total_cost = total_cost.first["total_cost"]
+  new_check = CheckSplitter.new(total_cost: total_cost, tip_percentage: tip_percent, people: new_number_of_people)
+  DATABASE.execute("UPDATE split_checks SET people = #{new_number_of_people}, final_per_person = #{new_check.final_per_person} WHERE id = #{id};")
 end
 
 # Add a new Check with CheckSplitter object and adds to database
